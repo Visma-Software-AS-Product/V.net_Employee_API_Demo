@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HRM_API_Demo.APIs.Employee
+﻿namespace HRM_API_Demo.APIs.Employee
 {
     public class Position
     {
