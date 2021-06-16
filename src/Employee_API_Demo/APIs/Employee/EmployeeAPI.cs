@@ -18,7 +18,7 @@ namespace HRM_API_Demo.APIs.Employee
             return "visma_net_employee:employees:read visma_net_employee:employees:write";
         }
 
-        public async Task<EmployeeList> GetEmployees()
+        public async Task<EmployeeData[]> GetEmployees()
         {
             using (var client = new HttpClient())
             {
@@ -30,14 +30,14 @@ namespace HRM_API_Demo.APIs.Employee
                     var response = await client.SendAsync(request);
                     response.EnsureSuccessStatusCode();
 
-                    var values = JsonConvert.DeserializeObject<EmployeeList>(await response.Content.ReadAsStringAsync());
+                    var values = JsonConvert.DeserializeObject<EmployeeRootobject>(await response.Content.ReadAsStringAsync());
 
-                    return values;                    
+                    return values.data;
                 }
             }
         }
 
-        public async Task<Employee> GetEmployee(string employeeId)
+        public async Task<EmployeeData> GetEmployee(string employeeId)
         {
             using (var client = new HttpClient())
             {
@@ -49,14 +49,14 @@ namespace HRM_API_Demo.APIs.Employee
                     var response = await client.SendAsync(request);
                     response.EnsureSuccessStatusCode();
 
-                    var values = JsonConvert.DeserializeObject<Employee>(await response.Content.ReadAsStringAsync());
+                    var values = JsonConvert.DeserializeObject<EmployeeData>(await response.Content.ReadAsStringAsync());
 
                     return values;
                 }
             }
         }
 
-        public async Task<List<Position>> GetPositions(string employeeId)
+        public async Task<Position[]> GetPositions(string employeeId)
         {
             using (var client = new HttpClient())
             {
@@ -69,6 +69,49 @@ namespace HRM_API_Demo.APIs.Employee
                     response.EnsureSuccessStatusCode();
 
                     var values = JsonConvert.DeserializeObject<List<Position>>(await response.Content.ReadAsStringAsync());
+
+                    return values.ToArray();
+                }
+            }
+        }
+
+        public async Task<string> CreateEmployee(EmployeeData employee)
+        {
+            using (var client = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Post, BASE_URL + "/v0/employees/withPosition"))
+                {
+                    request.Headers.Add("Authorization", "Bearer " + await GetToken());
+                    request.Headers.Add("Accept", "application/json");
+
+                    request.Content = new StringContent(JsonConvert.SerializeObject(employee, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore }), Encoding.UTF8, "application/json");
+
+                    var response = await client.SendAsync(request);
+                    response.EnsureSuccessStatusCode();
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.Accepted) //202
+                    {
+                        return response.Headers.Location.ToString();
+                    }
+                    else
+                        return "Error";
+                }
+            }
+        }
+
+        public async Task<Job> GetJob(string jobPath)
+        {
+            using (var client = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, BASE_URL + jobPath))
+                {
+                    request.Headers.Add("Authorization", "Bearer " + await GetToken());
+                    request.Headers.Add("Accept", "application/json");
+
+                    var response = await client.SendAsync(request);
+                    response.EnsureSuccessStatusCode();
+
+                    var values = JsonConvert.DeserializeObject<Job>(await response.Content.ReadAsStringAsync());
 
                     return values;
                 }
