@@ -1,4 +1,4 @@
-# V.net_Employee_API_Demo
+# Visma.net HRM - Employee API Demo
 Demo-application of the Visma.net Employee API
 
 Written in C# (.NET 5.0).
